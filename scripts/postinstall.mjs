@@ -9,7 +9,6 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { createHash } from "node:crypto";
 import { arch, platform } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -58,17 +57,6 @@ function validateInputs() {
       [
         "Set KAYTO_REPO correctly, e.g. vladislav-yemelyanov/kayto.",
         "Remove KAYTO_REPO to use the default repository.",
-      ],
-    );
-  }
-
-  const checksum = process.env.KAYTO_SHA256?.trim();
-  if (checksum && !/^[a-fA-F0-9]{64}$/.test(checksum)) {
-    throw userError(
-      "KAYTO_SHA256 must be a 64-character hex SHA-256 string.",
-      [
-        "Use checksum format like: e3b0c44298fc1c149afbf4c8996fb924...",
-        "Unset KAYTO_SHA256 to auto-resolve checksum from release files.",
       ],
     );
   }
@@ -168,33 +156,6 @@ function findBinaryRecursive(startDir, binaryName) {
   return null;
 }
 
-async function fetchText(url) {
-  let response;
-  try {
-    response = await fetch(url, {
-      headers: {
-        "User-Agent": "kayto_ts-postinstall",
-        Accept: "application/json, text/plain, application/octet-stream",
-      },
-    });
-  } catch (error) {
-    throw userError(`Network error while requesting ${url}.`, [
-      "Check internet access and DNS settings.",
-      "If you are behind proxy, configure proxy for Node.js/npm.",
-      `Original error: ${error instanceof Error ? error.message : String(error)}`,
-    ]);
-  }
-
-  if (!response.ok) {
-    throw userError(`Request failed (${response.status}) ${url}`, [
-      "Verify repository/tag/checksum file exists in GitHub release.",
-      "If GitHub is rate-limited, retry later or use authenticated network.",
-    ]);
-  }
-
-  return response.text();
-}
-
 async function resolveVersionInput() {
   if (versionInputRaw) {
     return versionInputRaw;
@@ -262,110 +223,6 @@ async function downloadFile(url, outFile) {
 
   const arrayBuffer = await response.arrayBuffer();
   writeFileSync(outFile, Buffer.from(arrayBuffer));
-}
-
-function sha256Hex(filePath) {
-  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
-}
-
-function parseSha256Text(text, archiveName) {
-  const normalized = text.trim().toLowerCase();
-  const direct = normalized.match(/^[a-f0-9]{64}$/);
-  if (direct) {
-    return direct[0];
-  }
-
-  const lines = text.split(/\r?\n/);
-  for (const line of lines) {
-    const match = line.trim().match(/^([a-fA-F0-9]{64})\s+\*?(.+)$/);
-    if (!match) {
-      continue;
-    }
-
-    const fileName = match[2].trim();
-    if (fileName === archiveName) {
-      return match[1].toLowerCase();
-    }
-  }
-
-  return null;
-}
-
-async function resolveExpectedSha256(repoName, tag, archiveName) {
-  const base = `https://github.com/${repoName}/releases/download/${tag}`;
-  const directCandidates = [
-    `${base}/${archiveName}.sha256`,
-    `${base}/${archiveName}.sha256.txt`,
-  ];
-
-  for (const url of directCandidates) {
-    try {
-      const text = await fetchText(url);
-      const value = parseSha256Text(text, archiveName);
-      if (value) {
-        return { value, source: url };
-      }
-    } catch {
-    }
-  }
-
-  const checksumFileCandidates = [
-    "checksums.txt",
-    "sha256sums.txt",
-    "SHA256SUMS",
-    "SHA256SUMS.txt",
-  ];
-
-  for (const fileName of checksumFileCandidates) {
-    const url = `${base}/${fileName}`;
-    try {
-      const text = await fetchText(url);
-      const value = parseSha256Text(text, archiveName);
-      if (value) {
-        return { value, source: url };
-      }
-    } catch {
-    }
-  }
-
-  return null;
-}
-
-async function verifyArchiveChecksum(archivePath, archiveName, resolvedTag) {
-  if (process.env.KAYTO_SKIP_CHECKSUM === "1") {
-    console.warn("[kayto_ts] checksum verification is disabled via KAYTO_SKIP_CHECKSUM=1");
-    return;
-  }
-
-  const expectedFromEnv = process.env.KAYTO_SHA256?.trim().toLowerCase();
-  let expected = expectedFromEnv;
-  let source = "KAYTO_SHA256";
-
-  if (!expected) {
-    const resolved = await resolveExpectedSha256(repo, resolvedTag, archiveName);
-    if (!resolved) {
-      throw userError(`Could not resolve SHA-256 for ${archiveName}.`, [
-        `Publish checksum files in release ${resolvedTag} (e.g. checksums.txt).`,
-        "Or provide checksum explicitly via KAYTO_SHA256.",
-        "Or set KAYTO_SKIP_CHECKSUM=1 to bypass verification (not recommended).",
-      ]);
-    }
-
-    expected = resolved.value;
-    source = resolved.source;
-  }
-
-  const actual = sha256Hex(archivePath);
-  if (actual !== expected) {
-    throw userError(`Checksum mismatch for ${archiveName}.`, [
-      `Expected: ${expected} (${source})`,
-      `Actual:   ${actual}`,
-      "Re-run install with KAYTO_FORCE_INSTALL=1 to re-download archive.",
-      "If mismatch persists, verify release integrity and network/proxy behavior.",
-    ]);
-  }
-
-  console.log(`[kayto_ts] verified SHA-256 for ${archiveName} (${source})`);
 }
 
 function extractArchive(archivePath, outDir, ext) {
@@ -502,10 +359,9 @@ async function main() {
     );
 
     console.log(
-      `[kayto_ts] downloaded kayto-${resolvedAssetVersion}-${target}.${ext} (tag ${resolvedTag})`,
+      `[kayto_ts] downloaded ${archiveName} (tag ${resolvedTag})`,
     );
 
-    await verifyArchiveChecksum(archivePath, archiveName, resolvedTag);
     extractArchive(archivePath, tmpDir, ext);
 
     const extractedBinary = findBinaryRecursive(tmpDir, binaryName);
