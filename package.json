@@ -1,16 +1,12 @@
 {
   "name": "kayto_ts",
-  "version": "0.1.2",
-  "description": "Type-safe HTTP client and CLI wrapper for generating and using schemas with kayto.",
+  "version": "0.1.3",
+  "description": "Type-safe HTTP client for working with kayto-generated endpoint schemas.",
   "repository": "https://github.com/vladislav-yemelyanov/kayto_ts",
   "homepage": "https://www.npmjs.com/package/kayto_ts",
   "module": "src/index.ts",
   "type": "module",
-  "bin": {
-    "kayto": "./bin/kayto.mjs"
-  },
   "scripts": {
-    "postinstall": "node ./scripts/postinstall.mjs",
     "test": "bun test"
   },
   "devDependencies": {

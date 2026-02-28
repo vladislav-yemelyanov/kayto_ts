@@ -5,7 +5,7 @@
 🚀 Build robust API integrations faster with `kayto_ts`.
 
 - 🔒 End-to-end type safety for `method + path + params + body + response`
-- ⚡ Zero-boilerplate HTTP client generation from schema
+- ⚡ Zero-boilerplate HTTP client usage with generated schema types
 - 🧩 Request/response hooks for auth, tracing, and custom logic
 - ⏱️ Built-in timeout and cancellation support
 - 🛡️ Predictable, unified error model for cleaner handling
@@ -20,23 +20,17 @@ bun add kayto_ts
 # yarn add kayto_ts
 ```
 
-During install, `kayto_ts` automatically downloads `kayto` binary into local package directory: `.kayto/bin`.
-No global `kayto` install is required.
+## Generate schema (install kayto separately)
 
-## Using CLI
+`kayto_ts` is a client library only.
+To generate `schema.ts`, install `kayto` using the official guide:
 
-Generate TypeScript schema from OpenAPI in one command:
+[Install kayto from releases](https://github.com/vladislav-yemelyanov/kayto?tab=readme-ov-file#install-from-releases)
 
-```bash
-bunx kayto --lang ts --input "https://example.com/openapi.json" --output "generated/schema.ts"
-```
-
-Alternatives:
+Example generation command after installing `kayto`:
 
 ```bash
-npx kayto --help
-pnpm exec kayto --help
-yarn kayto --help
+kayto --lang ts --input "https://example.com/openapi.json" --output "generated/schema.ts"
 ```
 
 ## Multiple Services
