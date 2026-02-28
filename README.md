@@ -224,6 +224,66 @@ const clientWithHooks = clientApi<CatsEndpoints>({
 });
 ```
 
+## Success Handling (Cats API)
+
+```ts
+async function fetchCatsUI() {
+  let loading = true;
+
+  try {
+    const result = await client.get("/api/cats");
+
+    if (!result.ok) {
+      throw result.error;
+    }
+
+    const cats = result.responses[200];
+
+    if (!cats) {
+      throw new Error("Cats response is empty");
+    }
+
+    return cats;
+  } catch (error) {
+    // UI can show toast/snackbar here
+    throw error;
+  } finally {
+    loading = false;
+  }
+}
+```
+
+```ts
+async function createCatUI() {
+  let loading = true;
+
+  try {
+    const result = await client.post("/api/cats", {
+      body: {
+        name: "Milo",
+        age: 2,
+      },
+    });
+
+    if (!result.ok) {
+      throw result.error;
+    }
+
+    const created = result.responses[201] ?? result.responses[200];
+
+    if (!created) {
+      throw new Error("Create cat payload is empty");
+    }
+
+    return created;
+  } catch (error) {
+    throw error;
+  } finally {
+    loading = false;
+  }
+}
+```
+
 ## Error Handling
 
 All requests return a discriminated union:
