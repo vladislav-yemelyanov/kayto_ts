@@ -1,0 +1,19 @@
+{
+  "name": "kayto_ts",
+  "description": "Type-safe HTTP client and CLI wrapper for generating and using schemas with kayto.",
+  "module": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "kayto": "./bin/kayto.mjs"
+  },
+  "scripts": {
+    "postinstall": "bun ./scripts/postinstall.mjs || node ./scripts/postinstall.mjs",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
