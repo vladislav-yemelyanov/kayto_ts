@@ -1,44 +1,40 @@
 # kayto_ts
 
-Type-safe HTTP client with:
+🚀 Build robust API integrations faster with `kayto_ts`.
 
-- typed `method + path`
-- typed `params` and `body` from endpoint schema
-- request/response hooks
-- response interceptor
-- timeout and cancellation
-- unified error shape
+- 🔒 End-to-end type safety for `method + path + params + body + response`
+- ⚡ Zero-boilerplate HTTP client generation from schema
+- 🧩 Request/response hooks for auth, tracing, and custom logic
+- ⏱️ Built-in timeout and cancellation support
+- 🛡️ Predictable, unified error model for cleaner handling
 
 ## Install
 
 ```bash
-npm i kayto_ts
-# or:
+bun add kayto_ts
+# alternatives:
+# npm i kayto_ts
 # pnpm add kayto_ts
 # yarn add kayto_ts
-# bun add kayto_ts
 ```
 
 During install, `kayto_ts` automatically downloads `kayto` binary into local package directory: `.kayto/bin`.
 No global `kayto` install is required.
 
-### Auto-install config (optional)
-
-- `KAYTO_VERSION` (default: latest release tag from GitHub)
-- `KAYTO_REPO` (default: `vladislav-yemelyanov/kayto`)
-- `KAYTO_FORCE_INSTALL=1` to force re-download
-- `KAYTO_SHA256` to pin expected archive SHA-256
-- `KAYTO_SKIP_CHECKSUM=1` to skip checksum verification (not recommended)
-
 ## Using CLI
 
-`kayto_ts` exposes `kayto` binary via package `bin`:
+Generate TypeScript schema from OpenAPI in one command:
+
+```bash
+bunx kayto --lang ts --input "https://example.com/openapi.json" --output "generated/schema.ts"
+```
+
+Alternatives:
 
 ```bash
 npx kayto --help
 pnpm exec kayto --help
 yarn kayto --help
-bunx kayto --help
 ```
 
 ## Multiple Services
@@ -46,7 +42,7 @@ bunx kayto --help
 If you generate one schema file per microservice, keep clients centralized in one place.
 
 ```ts
-import { clientApi, type EndpointsMap } from "./src/index";
+import { clientApi, type EndpointsMap } from "kayto_ts";
 import type { Endpoints as AccountsEndpoints } from "./schemas/accounts";
 import type { Endpoints as BillingEndpoints } from "./schemas/billing";
 import type { Endpoints as NotificationsEndpoints } from "./schemas/notifications";
@@ -93,7 +89,7 @@ Suggested structure:
 ### With `baseUrl`
 
 ```ts
-import { clientApi } from "./src/index";
+import { clientApi } from "kayto_ts";
 import type { Endpoints as CatsEndpoints } from "./schemas/cats";
 
 const clientWithBaseUrl = clientApi<CatsEndpoints>({
@@ -105,7 +101,7 @@ const clientWithBaseUrl = clientApi<CatsEndpoints>({
 If you pass an absolute URL (`https://...`), it is used as-is and `baseUrl` is ignored.
 
 ```ts
-import { clientApi } from "./src/index";
+import { clientApi } from "kayto_ts";
 import type { Endpoints as CatsEndpoints } from "./schemas/cats";
 
 const client = clientApi<CatsEndpoints>({
@@ -207,7 +203,7 @@ const result = await promise;
 ## Hooks and Interceptor
 
 ```ts
-import { clientApi } from "./src/index";
+import { clientApi } from "kayto_ts";
 import type { Endpoints as CatsEndpoints } from "./schemas/cats";
 
 const clientWithHooks = clientApi<CatsEndpoints>({
