@@ -5,7 +5,7 @@ import {
   type EndpointOf,
   type FetchResult,
   type RequestInput,
-} from "./types";
+} from "./types.js";
 import {
   buildPath,
   createBodyAndHeaders,
@@ -14,7 +14,7 @@ import {
   makeClientError,
   resolveRequestUrl,
   safeResponseBody,
-} from "./utils";
+} from "./utils.js";
 
 export type {
   Api,
@@ -26,7 +26,7 @@ export type {
   FetchResult,
   RequestInput,
   RequestOptions,
-} from "./types";
+} from "./types.js";
 
 export function clientApi<Endpoints extends EndpointsMap>(
   config: ClientConfig = {},

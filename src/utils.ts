@@ -1,4 +1,4 @@
-import { type ClientError, type ErrorKind, type RequestInput, type RequestOptions, type Result } from "./types";
+import { type ClientError, type ErrorKind, type RequestInput, type RequestOptions, type Result } from "./types.js";
 
 export const HTTP_METHOD = {
   get: "GET",
