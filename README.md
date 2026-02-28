@@ -1,5 +1,7 @@
 # kayto_ts
 
+[📦 npm: kayto_ts](https://www.npmjs.com/package/kayto_ts)
+
 🚀 Build robust API integrations faster with `kayto_ts`.
 
 - 🔒 End-to-end type safety for `method + path + params + body + response`
