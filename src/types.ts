@@ -14,10 +14,19 @@ export type EndpointOf<
 
 export type EndpointParams<E> = E extends { params: infer P } ? P : never;
 export type EndpointBody<E> = E extends { body: infer B } ? B : never;
-export type EndpointResponses<E> = E extends { responses: infer R } ? R : never;
-export type EndpointResult<E> = [EndpointResponses<E>] extends [never]
-  ? unknown
-  : EndpointResponses<E>[keyof EndpointResponses<E>];
+export type EndpointResponses<E> = E extends { responses: infer R }
+  ? R extends Record<PropertyKey, unknown>
+    ? R
+    : never
+  : never;
+
+export type EndpointResponseMap<E> = [EndpointResponses<E>] extends [never]
+  ? Record<number, unknown>
+  : Partial<EndpointResponses<E>>;
+
+export type EndpointResult<E> = {
+  responses: EndpointResponseMap<E>;
+};
 
 export type ErrorKind =
   | "network"

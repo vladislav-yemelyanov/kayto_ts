@@ -3,6 +3,7 @@ import {
   type ClientConfig,
   type EndpointsMap,
   type EndpointOf,
+  type EndpointResponseMap,
   type EndpointResult,
   type FetchResult,
   type RequestInput,
@@ -24,6 +25,7 @@ export type {
   ClientHooks,
   EndpointsMap,
   EndpointOf,
+  EndpointResponseMap,
   EndpointResult,
   FetchResult,
   RequestInput,
@@ -137,19 +139,6 @@ export function clientApi<Endpoints extends EndpointsMap>(
       }
     }
 
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: makeClientError(
-          "http",
-          `Request failed with status ${response.status}`,
-          undefined,
-          response.status,
-        ),
-        response,
-      };
-    }
-
     const bodyResult = await safeResponseBody(response);
 
     if (!bodyResult.ok) {
@@ -164,9 +153,26 @@ export function clientApi<Endpoints extends EndpointsMap>(
       };
     }
 
-    const result = bodyResult.result as EndpointResult<
-      EndpointOf<Endpoints, Method, Path>
-    >;
+    const responses = {
+      [response.status]: bodyResult.result,
+    } as EndpointResponseMap<EndpointOf<Endpoints, Method, Path>>;
+
+    const result = {
+      responses,
+    } as EndpointResult<EndpointOf<Endpoints, Method, Path>>;
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: makeClientError(
+          "http",
+          `Request failed with status ${response.status}`,
+          undefined,
+          response.status,
+        ),
+        response,
+      };
+    }
 
     return { ok: true, result, response };
   };
