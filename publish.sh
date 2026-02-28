@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+rm -rf ./dist
 bun run prepublishOnly
 npm version patch --no-git-tag-version
 git add .

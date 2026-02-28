@@ -228,7 +228,7 @@ const clientWithHooks = clientApi<CatsEndpoints>({
 
 All requests return a discriminated union:
 
-- success: `{ ok: true, result, response }`
+- success: `{ ok: true, responses, response }`
 - failure: `{ ok: false, error, response? }`
 
 `error.kind` values:
@@ -242,6 +242,15 @@ All requests return a discriminated union:
 
 You can handle errors by `kind`, but it is optional.
 You can also handle them generically via `message` / `status` / `cause` without branching by `kind`.
+
+```ts
+const result = await client.get("/api/cats");
+
+if (result.ok) {
+  const success = result.responses[200];
+  console.log(success);
+}
+```
 
 ```ts
 const result = await client.get("/api/cats");
@@ -291,5 +300,5 @@ Client parses response body automatically by `content-type`:
 ## Notes
 
 - Runtime shape validation is not built in yet (current typing is compile-time only).
-- If you need runtime validation, validate `result.result` in consumer code (ArkType/Zod/etc.).
+- If you need runtime validation, validate `result.responses[statusCode]` in consumer code (ArkType/Zod/etc.).
 - Current entrypoint is `src/index.ts`.
