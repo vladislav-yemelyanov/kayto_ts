@@ -1,34 +1,40 @@
 {
   "name": "kayto_ts",
-  "version": "0.1.7",
-  "repository": "https://github.com/vladislav-yemelyanov/kayto_ts",
+  "version": "0.1.8",
+  "description": "Type-safe HTTP client for working with kayto-generated endpoint schemas.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vladislav-yemelyanov/kayto_ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vladislav-yemelyanov/kayto_ts/issues"
+  },
+  "homepage": "https://www.npmjs.com/package/kayto_ts",
+  "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5.9.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "description": "Type-safe HTTP client for working with kayto-generated endpoint schemas.",
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-  "homepage": "https://www.npmjs.com/package/kayto_ts",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
     "test": "bun test"
   },
-  "type": "module",
-  "types": "./dist/index.d.ts"
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
 }
