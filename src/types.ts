@@ -43,9 +43,9 @@ export type ClientError = {
   status?: number;
 };
 
-export type FetchResult<R, E = ClientError> =
-  | { ok: true; result: R; response: Response }
-  | { ok: false; error: E; response?: Response };
+export type FetchResult<E, Err = ClientError> =
+  | { ok: true; responses: EndpointResponseMap<E>; response: Response }
+  | { ok: false; error: Err; response?: Response };
 
 export type Result<R, E = string> =
   | { ok: true; result: R }
@@ -73,7 +73,7 @@ export type Api<Endpoints extends EndpointsMap> = {
   >(
     path: Path,
     ...args: RequestArgs<EndpointOf<Endpoints, Method, Path>>
-  ) => Promise<FetchResult<EndpointResult<EndpointOf<Endpoints, Method, Path>>>>;
+  ) => Promise<FetchResult<EndpointOf<Endpoints, Method, Path>>>;
 };
 
 export type RequestHookContext = {

@@ -44,7 +44,7 @@ export function clientApi<Endpoints extends EndpointsMap>(
     method: Method,
     path: Path,
     input?: RequestInput<EndpointOf<Endpoints, Method, Path>>,
-  ): Promise<FetchResult<EndpointResult<EndpointOf<Endpoints, Method, Path>>>> => {
+  ): Promise<FetchResult<EndpointOf<Endpoints, Method, Path>>> => {
     const requestInput =
       input ?? ({} as RequestInput<EndpointOf<Endpoints, Method, Path>>);
     const { signal, cleanup, didTimeout } = createFetchSignal(requestInput);
@@ -157,10 +157,6 @@ export function clientApi<Endpoints extends EndpointsMap>(
       [response.status]: bodyResult.result,
     } as EndpointResponseMap<EndpointOf<Endpoints, Method, Path>>;
 
-    const result = {
-      responses,
-    } as EndpointResult<EndpointOf<Endpoints, Method, Path>>;
-
     if (!response.ok) {
       return {
         ok: false,
@@ -174,7 +170,7 @@ export function clientApi<Endpoints extends EndpointsMap>(
       };
     }
 
-    return { ok: true, result, response };
+    return { ok: true, responses, response };
   };
 
   return {
