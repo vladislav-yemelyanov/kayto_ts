@@ -2,7 +2,9 @@
 
 [📦 npm: kayto_ts](https://www.npmjs.com/package/kayto_ts)
 
-🚀 Build robust API integrations faster with `kayto_ts`.
+`kayto_ts` is a type-safe HTTP client that works in pair with `kayto` 🦀 (Rust).
+
+`kayto` generates `schema.ts` from your OpenAPI spec, and `kayto_ts` uses that schema to provide strongly-typed requests, responses, and hooks across any TypeScript platform: browser, Bun, Node.js, Deno, and more.
 
 - 🔒 End-to-end type safety for `method + path + params + body + response`
 - ⚡ Zero-boilerplate HTTP client usage with generated schema types

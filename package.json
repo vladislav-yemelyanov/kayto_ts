@@ -1,6 +1,6 @@
 {
   "name": "kayto_ts",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Type-safe HTTP client for working with kayto-generated endpoint schemas.",
   "repository": {
     "type": "git",
