@@ -1,5 +1,6 @@
 {
   "name": "kayto_ts",
+  "version": "0.1.0",
   "description": "Type-safe HTTP client and CLI wrapper for generating and using schemas with kayto.",
   "module": "src/index.ts",
   "type": "module",
