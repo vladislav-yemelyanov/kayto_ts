@@ -14,6 +14,10 @@ export type EndpointOf<
 
 export type EndpointParams<E> = E extends { params: infer P } ? P : never;
 export type EndpointBody<E> = E extends { body: infer B } ? B : never;
+export type EndpointResponses<E> = E extends { responses: infer R } ? R : never;
+export type EndpointResult<E> = [EndpointResponses<E>] extends [never]
+  ? unknown
+  : EndpointResponses<E>[keyof EndpointResponses<E>];
 
 export type ErrorKind =
   | "network"
@@ -60,7 +64,7 @@ export type Api<Endpoints extends EndpointsMap> = {
   >(
     path: Path,
     ...args: RequestArgs<EndpointOf<Endpoints, Method, Path>>
-  ) => Promise<FetchResult<EndpointOf<Endpoints, Method, Path>>>;
+  ) => Promise<FetchResult<EndpointResult<EndpointOf<Endpoints, Method, Path>>>>;
 };
 
 export type RequestHookContext = {

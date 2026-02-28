@@ -3,6 +3,7 @@ import {
   type ClientConfig,
   type EndpointsMap,
   type EndpointOf,
+  type EndpointResult,
   type FetchResult,
   type RequestInput,
 } from "./types.js";
@@ -23,6 +24,7 @@ export type {
   ClientHooks,
   EndpointsMap,
   EndpointOf,
+  EndpointResult,
   FetchResult,
   RequestInput,
   RequestOptions,
@@ -40,7 +42,7 @@ export function clientApi<Endpoints extends EndpointsMap>(
     method: Method,
     path: Path,
     input?: RequestInput<EndpointOf<Endpoints, Method, Path>>,
-  ): Promise<FetchResult<EndpointOf<Endpoints, Method, Path>>> => {
+  ): Promise<FetchResult<EndpointResult<EndpointOf<Endpoints, Method, Path>>>> => {
     const requestInput =
       input ?? ({} as RequestInput<EndpointOf<Endpoints, Method, Path>>);
     const { signal, cleanup, didTimeout } = createFetchSignal(requestInput);
@@ -162,7 +164,9 @@ export function clientApi<Endpoints extends EndpointsMap>(
       };
     }
 
-    const result = bodyResult.result as EndpointOf<Endpoints, Method, Path>;
+    const result = bodyResult.result as EndpointResult<
+      EndpointOf<Endpoints, Method, Path>
+    >;
 
     return { ok: true, result, response };
   };

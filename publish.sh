@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+bun run prepublishOnly
 npm version patch --no-git-tag-version
 git add .
 git commit -m "upgrade"
