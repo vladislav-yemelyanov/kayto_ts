@@ -1,16 +1,22 @@
-export type EndpointsMap = {
-  get: Record<PropertyKey, unknown>;
-  post: Record<PropertyKey, unknown>;
-  put: Record<PropertyKey, unknown>;
-  patch: Record<PropertyKey, unknown>;
-  delete: Record<PropertyKey, unknown>;
+export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
+
+export type EndpointsMap = Record<HttpMethod, Record<PropertyKey, unknown>>;
+
+export type PartialEndpointsMap = Partial<EndpointsMap>;
+
+export type EnsureRecord<T> = T extends Record<PropertyKey, unknown>
+  ? T
+  : Record<never, never>;
+
+export type NormalizeEndpoints<Endpoints extends PartialEndpointsMap> = {
+  [Method in HttpMethod]: EnsureRecord<Endpoints[Method]>;
 };
 
 export type EndpointOf<
-  Endpoints extends EndpointsMap,
-  Method extends keyof EndpointsMap,
-  Path extends keyof EndpointsMap[Method],
-> = Endpoints[Method][Path];
+  Endpoints extends PartialEndpointsMap,
+  Method extends HttpMethod,
+  Path extends keyof NormalizeEndpoints<Endpoints>[Method],
+> = NormalizeEndpoints<Endpoints>[Method][Path];
 
 export type EndpointParams<E> = E extends { params: infer P } ? P : never;
 export type EndpointBody<E> = E extends { body: infer B } ? B : never;
@@ -67,9 +73,9 @@ export type RequestArgs<E> = [EndpointBody<E>] extends [never]
   ? [input?: RequestInput<E>]
   : [input: RequestInput<E>];
 
-export type Api<Endpoints extends EndpointsMap> = {
-  [Method in keyof EndpointsMap]: <
-    Path extends Extract<keyof Endpoints[Method], string>,
+export type Api<Endpoints extends PartialEndpointsMap> = {
+  [Method in HttpMethod]: <
+    Path extends Extract<keyof NormalizeEndpoints<Endpoints>[Method], string>,
   >(
     path: Path,
     ...args: RequestArgs<EndpointOf<Endpoints, Method, Path>>
@@ -77,20 +83,20 @@ export type Api<Endpoints extends EndpointsMap> = {
 };
 
 export type RequestHookContext = {
-  method: keyof EndpointsMap;
+  method: HttpMethod;
   path: string;
   init: RequestInit;
 };
 
 export type ResponseHookContext = {
-  method: keyof EndpointsMap;
+  method: HttpMethod;
   path: string;
   response: Response;
   durationMs: number;
 };
 
 export type ResponseInterceptorContext = {
-  method: keyof EndpointsMap;
+  method: HttpMethod;
   path: string;
   response: Response;
 };

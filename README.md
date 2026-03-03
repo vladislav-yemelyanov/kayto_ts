@@ -40,7 +40,7 @@ kayto --lang ts --input "https://example.com/openapi.json" --output "generated/s
 If you generate one schema file per microservice, keep clients centralized in one place.
 
 ```ts
-import { clientApi, type EndpointsMap } from "kayto_ts";
+import { clientApi } from "kayto_ts";
 import type { Endpoints as AccountsEndpoints } from "./schemas/accounts";
 import type { Endpoints as BillingEndpoints } from "./schemas/billing";
 import type { Endpoints as NotificationsEndpoints } from "./schemas/notifications";
@@ -51,7 +51,7 @@ const SERVICE_URLS = {
   notifications: "https://notifications.example.com",
 } as const;
 
-function createServiceClient<TEndpoints extends EndpointsMap>(baseUrl: string) {
+function createServiceClient<TEndpoints>(baseUrl: string) {
   return clientApi<TEndpoints>({
     baseUrl,
     onRequest: ({ init }) => {

@@ -2,6 +2,8 @@ import {
   type Api,
   type ClientConfig,
   type EndpointsMap,
+  type PartialEndpointsMap,
+  type HttpMethod,
   type EndpointOf,
   type EndpointResponseMap,
   type EndpointResult,
@@ -24,6 +26,8 @@ export type {
   ClientError,
   ClientHooks,
   EndpointsMap,
+  PartialEndpointsMap,
+  HttpMethod,
   EndpointOf,
   EndpointResponseMap,
   EndpointResult,
@@ -32,30 +36,24 @@ export type {
   RequestOptions,
 } from "./types.js";
 
-export function clientApi<Endpoints extends EndpointsMap>(
+export function clientApi<Endpoints extends PartialEndpointsMap>(
   config: ClientConfig = {},
 ): Api<Endpoints> {
   const { baseUrl, onRequest, onResponse, responseInterceptor } = config;
 
-  const request = async <
-    Method extends keyof EndpointsMap,
-    Path extends Extract<keyof Endpoints[Method], string>,
-  >(
-    method: Method,
-    path: Path,
-    input?: RequestInput<EndpointOf<Endpoints, Method, Path>>,
-  ): Promise<FetchResult<EndpointOf<Endpoints, Method, Path>>> => {
-    const requestInput =
-      input ?? ({} as RequestInput<EndpointOf<Endpoints, Method, Path>>);
+  const request = async (
+    method: HttpMethod,
+    path: string,
+    input?: RequestInput<unknown>,
+  ): Promise<FetchResult<unknown>> => {
+    const requestInput = input ?? {};
     const { signal, cleanup, didTimeout } = createFetchSignal(requestInput);
     const builtPath = buildPath(
       path,
       (requestInput as { params?: unknown }).params,
     );
     const resolvedPath = resolveRequestUrl(builtPath, baseUrl);
-    const { body, headers } = createBodyAndHeaders(
-      requestInput as RequestInput<unknown>,
-    );
+    const { body, headers } = createBodyAndHeaders(requestInput);
     const init: RequestInit = {
       method: HTTP_METHOD[method],
       signal,
@@ -155,7 +153,7 @@ export function clientApi<Endpoints extends EndpointsMap>(
 
     const responses = {
       [response.status]: bodyResult.result,
-    } as EndpointResponseMap<EndpointOf<Endpoints, Method, Path>>;
+    } as EndpointResponseMap<unknown>;
 
     if (!response.ok) {
       return {
@@ -174,10 +172,10 @@ export function clientApi<Endpoints extends EndpointsMap>(
   };
 
   return {
-    get: (path, ...args) => request("get", path, args[0]),
-    post: (path, ...args) => request("post", path, args[0]),
-    put: (path, ...args) => request("put", path, args[0]),
-    patch: (path, ...args) => request("patch", path, args[0]),
-    delete: (path, ...args) => request("delete", path, args[0]),
+    get: ((path, ...args) => request("get", path, args[0])) as Api<Endpoints>["get"],
+    post: ((path, ...args) => request("post", path, args[0])) as Api<Endpoints>["post"],
+    put: ((path, ...args) => request("put", path, args[0])) as Api<Endpoints>["put"],
+    patch: ((path, ...args) => request("patch", path, args[0])) as Api<Endpoints>["patch"],
+    delete: ((path, ...args) => request("delete", path, args[0])) as Api<Endpoints>["delete"],
   };
 }
