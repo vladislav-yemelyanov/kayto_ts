@@ -8,13 +8,24 @@ export const HTTP_METHOD = {
   delete: "DELETE",
 } as const;
 
-export function makeClientError(
+export function makeClientError<E = unknown>(
   kind: ErrorKind,
   message: string,
   cause?: unknown,
   status?: number,
-): ClientError {
-  return { kind, message, cause, status };
+  data?: unknown,
+): ClientError<E> {
+  if (kind === "http") {
+    return {
+      kind,
+      message,
+      cause,
+      status: status ?? 0,
+      data,
+    } as ClientError<E>;
+  }
+
+  return { kind, message, cause, status } as ClientError<E>;
 }
 
 export function createFetchSignal(options: RequestOptions): {

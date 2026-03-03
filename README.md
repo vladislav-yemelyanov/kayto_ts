@@ -305,6 +305,8 @@ All requests return a discriminated union:
 You can handle errors by `kind`, but it is optional.
 You can also handle them generically via `message` / `status` / `cause` without branching by `kind`.
 
+For `http` errors, `error.data` contains the parsed backend payload and is typed from the endpoint's non-2xx responses (for example `400`, `404`, `422`).
+
 ```ts
 const result = await client.get("/api/cats");
 
@@ -343,6 +345,7 @@ if (!result.ok) {
       break;
     case "http":
       console.error("HTTP error", result.error.status);
+      console.error("Backend payload", result.error.data);
       break;
     default:
       console.error(result.error.message, result.error.cause);

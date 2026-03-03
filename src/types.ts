@@ -42,14 +42,39 @@ export type ErrorKind =
   | "parse"
   | "hook";
 
-export type ClientError = {
+type ErrorStatusCode<R extends Record<PropertyKey, unknown>> = Exclude<
+  Extract<keyof R, number>,
+  200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
+>;
+
+type HttpErrorDataByStatus<R extends Record<PropertyKey, unknown>> = {
+  [S in ErrorStatusCode<R>]: [R[S]] extends [never]
+    ? never
+    : { status: S; data: R[S] };
+}[ErrorStatusCode<R>];
+
+type HttpErrorPayload<E> = [EndpointResponses<E>] extends [never]
+  ? { status: number; data?: unknown }
+  : [HttpErrorDataByStatus<EndpointResponses<E>>] extends [never]
+    ? { status: number; data?: unknown }
+    : HttpErrorDataByStatus<EndpointResponses<E>>;
+
+export type ClientError<E = unknown> = {
   kind: ErrorKind;
   message: string;
   cause?: unknown;
-  status?: number;
-};
+} & (
+  | {
+      kind: "network" | "timeout" | "aborted" | "parse" | "hook";
+      status?: number;
+      data?: undefined;
+    }
+  | ({
+      kind: "http";
+    } & HttpErrorPayload<E>)
+);
 
-export type FetchResult<E, Err = ClientError> =
+export type FetchResult<E, Err = ClientError<E>> =
   | { ok: true; responses: EndpointResponseMap<E>; response: Response }
   | { ok: false; error: Err; response?: Response };
 

@@ -163,6 +163,7 @@ export function clientApi<Endpoints extends PartialEndpointsMap>(
           `Request failed with status ${response.status}`,
           undefined,
           response.status,
+          bodyResult.result,
         ),
         response,
       };
